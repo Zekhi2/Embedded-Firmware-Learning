@@ -1,0 +1,5 @@
+# Ignore the candleLight firmware directory
+candleLight_fw/
+
+# Ignore the VS Code settings directory
+.vscode/
