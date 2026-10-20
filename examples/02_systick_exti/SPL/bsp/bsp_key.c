@@ -1,17 +1,5 @@
-/**
- * @file    bsp_key.c
- * @brief   按键 EXTI 外部中断实现（SPL 版本，Day 2）
- * @note    相对 Day 1（feature/drv-gpio）的变化：
- *          - Day 1：GPIO 输入 + 主循环轮询读取电平；
- *          - Day 2：PA0 配置为 IPU 输入并映射到 EXTI Line0，
- *            下降沿触发中断，中断中只累加事件计数。
- *          中断安全原则：
- *          - 中断中只处理简单事件（计数），不做消抖/打印/业务；
- *          - 中断标志必须清除；
- *          - 与主循环共享的变量使用 volatile。
- */
-
 #include "bsp_key.h"
+#include "drv_gpio.h"
 #include "app_config.h"
 
 /*
@@ -21,24 +9,24 @@
  */
 static volatile uint32_t s_key_event_count = 0;
 
-void bsp_key_init(void)
+void KEY_Init(void)
 {
-    GPIO_InitTypeDef GPIO_InitStruct;
     EXTI_InitTypeDef EXTI_InitStruct;
     NVIC_InitTypeDef NVIC_InitStruct;
 
-    /* 使能 GPIOA 和 AFIO 时钟 */
-    RCC_APB2PeriphClockCmd(KEY_GPIO_CLK | RCC_APB2Periph_AFIO, ENABLE);
+    /* 复用 Day 1 的 GPIO 输入初始化（内部上拉） */
+    drv_gpio_input_init(KEY_GPIO_PORT,
+                        KEY_GPIO_CLK,
+                        KEY_GPIO_PIN,
+                        KEY_INTPUT_PULL);
 
-    /* PA0 上拉输入，按键按下产生低电平 */
-    GPIO_InitStruct.GPIO_Pin  = KEY_GPIO_PIN;
-    GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IPU;
-    GPIO_Init(KEY_GPIO_PORT, &GPIO_InitStruct);
+    /* 使能 AFIO 时钟，EXTI 线映射依赖 AFIO */
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
 
     /* 将 PA0 映射到 EXTI Line0 */
     GPIO_EXTILineConfig(KEY_EXTI_PORT_SOURCE, KEY_EXTI_PIN_SOURCE);
 
-    /* 配置 EXTI */
+    /* 配置 EXTI：下降沿触发中断 */
     EXTI_InitStruct.EXTI_Line    = KEY_EXTI_LINE;
     EXTI_InitStruct.EXTI_Mode    = EXTI_Mode_Interrupt;
     EXTI_InitStruct.EXTI_Trigger = EXTI_Trigger_Falling;
@@ -53,12 +41,28 @@ void bsp_key_init(void)
     NVIC_Init(&NVIC_InitStruct);
 }
 
-uint32_t bsp_key_get_event_count(void)
+uint32_t KEY_GetEventCount(void)
 {
     return s_key_event_count;
 }
 
-void bsp_key_exti_irq_handler(void)
+key_state_t KEY_Read(void)
+{
+    uint8_t level;
+
+    level = drv_gpio_read(KEY_GPIO_PORT, KEY_GPIO_PIN);
+
+    if (level == KEY_PRESSED_LEVEL)
+    {
+        return KEY_PRESSED;
+    }
+    else
+    {
+        return KEY_RELEASED;
+    }
+}
+
+void KEY_EXTI_IRQHandler(void)
 {
     if (EXTI_GetITStatus(KEY_EXTI_LINE) != RESET)
     {
