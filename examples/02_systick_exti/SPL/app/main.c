@@ -1,32 +1,30 @@
 /**
- * @file    main.c
- * @brief   Day 2：EXTI 按键 + Timer 1ms 系统节拍 + 非阻塞 LED 闪烁
- * @note    承接 Day 1（feature/drv-gpio）的分层约定：
- *          - main.c 只调用 bsp/driver 接口，不直接操作寄存器；
- *          - 共享变量封装在各模块内部，通过接口读取（volatile + getter）；
- *          - 时间相关变量统一使用 uint32_t；
- *          - 超时判断使用差值写法，正确处理无符号溢出回绕：
- *              推荐：if ((uint32_t)(now - last) >= timeout)
- *              不推荐：if (now >= last + timeout)
- *          Day 1 -> Day 2 变化：
- *          - 按键由主循环轮询改为 EXTI 下降沿中断 + 事件计数；
- *          - LED 由 delay 阻塞翻转改为基于 1ms 节拍的 500ms 非阻塞闪烁。
+ * @brief         EXTI按键中断 + Timer 1ms系统节拍 + 非阻塞LED闪烁
+ * @par firmware: STM32F103
+ * SPL
+ * @par compiler: Keil MDK
+ * @date          2026-10-20
+ * @version       V1.0
+ * @note          Day 2：按键由轮询改为EXTI下降沿中断+事件计数；
+ *                LED由delay阻塞翻转改为基于节拍的500ms非阻塞闪烁。
+ *                超时判断使用差值写法 (now - last) >= timeout，
+ *                可正确处理 uint32_t 溢出回绕。
  */
-
 #include "stm32f10x.h"
 #include "bsp_led.h"
 #include "bsp_key.h"
 #include "drv_timer_tick.h"
-#include <stdint.h>
+
+/* LED 非阻塞闪烁周期（ms） */
+#define LED_BLINK_PERIOD_MS    500U
 
 int main(void)
 {
     /* 配置 NVIC 分组 */
     NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
 
-    /* 初始化外设 */
-    bsp_led_init();
-    bsp_key_init();
+    LED_Init();
+    KEY_Init();
     drv_timer_tick_init();
 
     /* 仅主循环使用的变量，不需要 volatile */
@@ -40,15 +38,15 @@ int main(void)
          * 避免一次逻辑中多次读取到不同值。
          */
         uint32_t now = drv_timer_tick_get();
-        uint32_t key_event_count_snapshot = bsp_key_get_event_count();
+        uint32_t key_event_count_snapshot = KEY_GetEventCount();
 
         /*-------------------------------------------------
          * 1. 非阻塞 LED 闪烁：500ms 一次
          *------------------------------------------------*/
-        if ((uint32_t)(now - led_last_tick) >= 500U)
+        if ((uint32_t)(now - led_last_tick) >= LED_BLINK_PERIOD_MS)
         {
             led_last_tick = now;
-            bsp_led_toggle();
+            LED_Toggle();
         }
 
         /*-------------------------------------------------
@@ -62,7 +60,7 @@ int main(void)
              * 按键事件发生后立即翻转 LED，
              * 并重置闪烁节拍。
              */
-            bsp_led_toggle();
+            LED_Toggle();
             led_last_tick = now;
         }
     }
