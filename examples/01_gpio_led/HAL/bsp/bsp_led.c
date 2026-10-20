@@ -1,0 +1,53 @@
+#include "bsp_led.h"
+#include "drv_gpio.h"
+#include "app_config.h"
+
+static uint8_t s_led_state = 0;
+
+void LED_Init(void)
+{
+    drv_gpio_output_init(LED_GPIO_PORT,
+                         LED_GPIO_PIN);
+
+    LED_Off();
+}
+
+void LED_On(void)
+{
+    s_led_state = 1;
+
+    if (LED_ACTIVE_LOW == 1)
+    {
+        drv_gpio_write(LED_GPIO_PORT, LED_GPIO_PIN, 0);
+    }
+    else
+    {
+        drv_gpio_write(LED_GPIO_PORT, LED_GPIO_PIN, 1);
+    }
+}
+
+void LED_Off(void)
+{
+    s_led_state = 0;
+
+    if (LED_ACTIVE_LOW == 1)
+    {
+        drv_gpio_write(LED_GPIO_PORT, LED_GPIO_PIN, 1);
+    }
+    else
+    {
+        drv_gpio_write(LED_GPIO_PORT, LED_GPIO_PIN, 0);
+    }
+}
+
+void LED_Toggle(void)
+{
+    if (s_led_state == 1)
+    {
+        LED_Off();
+    }
+    else
+    {
+        LED_On();
+    }
+}
