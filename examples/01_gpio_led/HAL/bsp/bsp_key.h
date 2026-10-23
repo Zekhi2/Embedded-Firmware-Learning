@@ -1,10 +1,10 @@
+/* User/bsp/bsp_key.h */
 #ifndef BSP_KEY_H
 #define BSP_KEY_H
 
 #include <stdint.h>
 
-typedef enum
-{
+typedef enum {
     KEY_RELEASED = 0,
     KEY_PRESSED  = 1
 } key_state_t;

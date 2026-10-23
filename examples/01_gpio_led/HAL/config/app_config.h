@@ -1,28 +1,27 @@
+/* User/config/app_config.h */
 #ifndef APP_CONFIG_H
 #define APP_CONFIG_H
 
-#include "stm32f1xx_hal.h"
+/* 包含 CubeMX 生成的头文件，获取 LED_Pin, KEY_Pin 等定义 */
+#include "main.h"
 
 /* ---------------- LED 配置 ---------------- */
+/* 物理引脚映射 (来自 main.h) */
+#define LED_PORT        LED_GPIO_Port
+#define LED_PIN         LED_Pin
 
-/* 很多 STM32F103C8T6 开发板 LED 接在 PC13，低电平点亮 */
-#define LED_GPIO_PORT        GPIOC
-#define LED_GPIO_PIN         GPIO_PIN_13
-
-/* 1：低电平点亮；0：高电平点亮 */
-#define LED_ACTIVE_LOW       1
-
+/* 业务逻辑：低电平点亮 (根据原理图 PC13 接 LED 负极) */
+#define LED_ON_LEVEL    GPIO_PIN_RESET
 
 /* ---------------- KEY 配置 ---------------- */
+/* 物理引脚映射 (来自 main.h) */
+#define KEY_PORT        KEY_GPIO_Port
+#define KEY_PIN         KEY_Pin
 
-/* 假设按键接在 PA0，按下接地 */
-#define KEY_GPIO_PORT        GPIOA
-#define KEY_GPIO_PIN         GPIO_PIN_0
+/* 业务逻辑：按下为低电平 (根据原理图 PA0 接 GND) */
+#define KEY_PRESSED_LEVEL GPIO_PIN_RESET
 
-/* 1：按下为低电平；0：按下为高电平 */
-#define KEY_ACTIVE_LOW       1
-
-/* 1：内部上拉；0：内部下拉 */
-#define KEY_PULL_UP          1
+/* 硬件配置：内部上拉 (CubeMX 已配置，这里用于一致性检查或文档) */
+#define KEY_INPUT_PULL    GPIO_PULLUP
 
 #endif
