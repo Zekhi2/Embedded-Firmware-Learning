@@ -6,12 +6,13 @@
 #include "main.h"
 
 /* ---------------- LED 配置 ---------------- */
-/* 物理引脚映射 (来自 main.h) */
+/* 物理引脚映射 (来自 CubeMX 生成的 main.h) */
 #define LED_PORT        LED_GPIO_Port
 #define LED_PIN         LED_Pin
 
-/* 业务逻辑：低电平点亮 (根据原理图 PC13 接 LED 负极) */
+/* 业务逻辑：低电平点亮*/
 #define LED_ON_LEVEL    GPIO_PIN_RESET
+#define LED_OFF_LEVEL   GPIO_PIN_SET
 
 /* ---------------- KEY 配置 ---------------- */
 /* 物理引脚映射 (来自 main.h) */
@@ -19,9 +20,11 @@
 #define KEY_PIN         KEY_Pin
 
 /* 业务逻辑：按下为低电平 (根据原理图 PA0 接 GND) */
-#define KEY_PRESSED_LEVEL GPIO_PIN_RESET
+#define KEY_PRESSED_LEVEL   GPIO_PIN_RESET
+#define KEY_RELEASED_LEVEL  GPIO_PIN_SET
 
-/* 硬件配置：内部上拉 (CubeMX 已配置，这里用于一致性检查或文档) */
-#define KEY_INPUT_PULL    GPIO_PULLUP
+/* CubeMX 在 gpio.c 里配置
+SPL配置硬件：内部上拉 */
+// #define KEY_INPUT_PULL    GPIO_PULLUP
 
-#endif
+#endif /* APP_CONFIG_H */
