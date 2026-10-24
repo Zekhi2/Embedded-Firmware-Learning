@@ -2,4 +2,6 @@
 candleLight_fw/
 
 # Ignore the VS Code settings directory
-.vscode/
+.vscode/*
+!.vscode/
+!.vscode/Doxygen.code-snippets
