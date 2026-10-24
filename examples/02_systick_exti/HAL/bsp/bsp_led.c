@@ -1,67 +1,27 @@
+/* User/bsp/bsp_led.c */
 #include "bsp_led.h"
 #include "app_config.h"
 
-static uint8_t s_led_state = 0;
-
-static void led_write(uint8_t on)
+void LED_Init(void)
 {
-#if (LED_ACTIVE_LOW == 1)
-    if (on == 1)
-    {
-        /* 低电平点亮 */
-        HAL_GPIO_WritePin(LED_GPIO_PORT, LED_GPIO_PIN, GPIO_PIN_RESET);
-    }
-    else
-    {
-        /* 高电平熄灭 */
-        HAL_GPIO_WritePin(LED_GPIO_PORT, LED_GPIO_PIN, GPIO_PIN_SET);
-    }
-#else
-    if (on == 1)
-    {
-        /* 高电平点亮 */
-        HAL_GPIO_WritePin(LED_GPIO_PORT, LED_GPIO_PIN, GPIO_PIN_SET);
-    }
-    else
-    {
-        /* 低电平熄灭 */
-        HAL_GPIO_WritePin(LED_GPIO_PORT, LED_GPIO_PIN, GPIO_PIN_RESET);
-    }
-#endif
+    /*
+     * 引脚时钟 / 推挽输出 / 初始电平均已由 MX_GPIO_Init() 配置完成。
+     * 但为了模块独立性，可以在这里配置而非用 cubemx配置，这也是一种方案。
+     */
+    LED_Off(); /* 保证上电状态，属重复配置 */
 }
 
-void bsp_led_init(void)
+void LED_On(void)
 {
-    GPIO_InitTypeDef GPIO_InitStruct = {0};
-
-    __HAL_RCC_GPIOC_CLK_ENABLE();
-
-    /* 初始熄灭 */
-    HAL_GPIO_WritePin(LED_GPIO_PORT, LED_GPIO_PIN, GPIO_PIN_SET);
-
-    GPIO_InitStruct.Pin   = LED_GPIO_PIN;
-    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull  = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(LED_GPIO_PORT, &GPIO_InitStruct);
-
-    s_led_state = 0;
+    HAL_GPIO_WritePin(LED_PORT, LED_PIN, LED_ON_LEVEL);
 }
 
-void bsp_led_on(void)
+void LED_Off(void)
 {
-    s_led_state = 1;
-    led_write(1);
+    HAL_GPIO_WritePin(LED_PORT, LED_PIN, LED_OFF_LEVEL);
 }
 
-void bsp_led_off(void)
+void LED_Toggle(void)
 {
-    s_led_state = 0;
-    led_write(0);
-}
-
-void bsp_led_toggle(void)
-{
-    s_led_state ^= 1;
-    led_write(s_led_state);
+    HAL_GPIO_TogglePin(LED_PORT, LED_PIN);
 }

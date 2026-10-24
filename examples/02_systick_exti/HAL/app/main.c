@@ -1,8 +1,23 @@
+/**
+ * @brief         EXTI按键中断 + Timer 1ms系统节拍 + 非阻塞LED闪烁
+ * @par firmware: STM32F103 HAL (STM32CubeMX)
+ * @par compiler: Keil MDK
+ * @date          2026-10-25
+ * @version       V1.0
+ * @note          Day 2：按键由轮询改为EXTI下降沿中断+事件计数；
+ *                LED由delay阻塞翻转改为基于节拍的500ms非阻塞闪烁。
+ *                超时判断使用差值写法 (now - last) >= timeout，
+ *                可正确处理 uint32_t 溢出回绕。
+ */
+#include "main.h"
 #include "app_config.h"
 #include "bsp_led.h"
 #include "bsp_key.h"
 #include "drv_timer_tick.h"
 #include <stdint.h>
+
+/* LED 非阻塞闪烁周期（ms） */
+#define LED_BLINK_PERIOD_MS    500U
 
 void SystemClock_Config(void);
 
@@ -12,13 +27,12 @@ int main(void)
 
     /*
      * 系统时钟配置。
-     * 实际工程中通常由 CubeMX 生成。
-     * 这里假设配置为 72MHz。
+     * 实际工程中由 CubeMX 生成。
      */
     SystemClock_Config();
 
-    bsp_led_init();
-    bsp_key_init();
+    LED_Init();
+    KEY_Init();
     drv_timer_tick_init();
 
     /* 仅主循环使用的变量，不需要 volatile */
@@ -28,18 +42,19 @@ int main(void)
     while (1)
     {
         /*
-         * 读取共享变量时，先取局部快照。
+         * 读取共享变量时，先取局部快照，
+         * 避免一次逻辑中多次读取到不同值。
          */
         uint32_t now = drv_timer_tick_get();
-        uint32_t key_event_count_snapshot = bsp_key_get_event_count();
+        uint32_t key_event_count_snapshot = KEY_GetEventCount();
 
         /*-------------------------------------------------
          * 1. 非阻塞 LED 闪烁：500ms 一次
          *------------------------------------------------*/
-        if ((uint32_t)(now - led_last_tick) >= 500U)
+        if ((uint32_t)(now - led_last_tick) >= LED_BLINK_PERIOD_MS)
         {
             led_last_tick = now;
-            bsp_led_toggle();
+            LED_Toggle();
         }
 
         /*-------------------------------------------------
@@ -49,7 +64,11 @@ int main(void)
         {
             key_event_count_last = key_event_count_snapshot;
 
-            bsp_led_toggle();
+            /*
+             * 按键事件发生后立即翻转 LED，
+             * 并重置闪烁节拍。
+             */
+            LED_Toggle();
             led_last_tick = now;
         }
     }
@@ -61,5 +80,5 @@ int main(void)
  */
 void SystemClock_Config(void)
 {
-    /* TODO: 配置系统时钟到 72MHz */
+    /* TODO: 配置系统时钟到 72MHz（CubeMX 生成版本见 01_gpio_led/HAL/Core/Src/main.c） */
 }

@@ -1,9 +1,10 @@
+/* User/bsp/bsp_led.h */
 #ifndef BSP_LED_H
 #define BSP_LED_H
 
-void bsp_led_init(void);
-void bsp_led_on(void);
-void bsp_led_off(void);
-void bsp_led_toggle(void);
+void LED_Init(void);
+void LED_On(void);
+void LED_Off(void);
+void LED_Toggle(void);
 
 #endif /* BSP_LED_H */
