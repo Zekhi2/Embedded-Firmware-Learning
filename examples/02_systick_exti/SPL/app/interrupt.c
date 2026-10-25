@@ -2,10 +2,8 @@
  * @brief         中断入口转发
  * @par firmware: STM32F103
  * SPL
- * @par compiler: Keil MDK
  * @date          2026-10-20
- * @version       V1.0
- * @note          这里不写具体逻辑，只负责转发给对应模块处理函数。
+ * @note          只做中断向量入口分发，不夹带任何应用逻辑。
  */
 #include "stm32f10x.h"
 #include "bsp_key.h"

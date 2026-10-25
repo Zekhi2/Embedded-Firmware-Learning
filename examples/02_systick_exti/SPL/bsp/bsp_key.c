@@ -1,12 +1,8 @@
 #include "bsp_key.h"
 #include "drv_gpio.h"
+#include "drv_timer_tick.h"
 #include "app_config.h"
 
-/*
- * 该变量在 EXTI 中断中修改，
- * 在主循环中通过接口读取，
- * 所以必须使用 volatile。
- */
 static volatile uint32_t s_key_event_count = 0;
 
 void KEY_Init(void)
@@ -14,7 +10,7 @@ void KEY_Init(void)
     EXTI_InitTypeDef EXTI_InitStruct;
     NVIC_InitTypeDef NVIC_InitStruct;
 
-    /* 复用 Day 1 的 GPIO 输入初始化（内部上拉） */
+    /* GPIO 输入初始化（内部上拉） */
     drv_gpio_input_init(KEY_GPIO_PORT,
                         KEY_GPIO_CLK,
                         KEY_GPIO_PIN,
@@ -71,7 +67,14 @@ void KEY_EXTI_IRQHandler(void)
         /*
          * 中断中只记录事件次数，
          * 不做按键消抖、业务处理、打印等复杂操作。
+         * 中断消抖锁定机制，
+         * 若距离上次有效触发不足 50ms，视为物理机械抖动，直接滤除。
          */
-        s_key_event_count++;
+        uint32_t now = drv_timer_tick_get();
+        if ((uint32_t)(now - s_key_last_press_tick) >= KEY_DEBOUNCE_TIME_MS)
+        {
+            s_key_last_press_tick = now;
+            s_key_event_count++;
+        }
     }
 }

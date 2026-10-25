@@ -1,8 +1,3 @@
-/**
- * @file    drv_timer_tick.h
- * @brief   Timer 系统节拍驱动接口（SPL 版本，Day 2）
- */
-
 #ifndef DRV_TIMER_TICK_H
 #define DRV_TIMER_TICK_H
 

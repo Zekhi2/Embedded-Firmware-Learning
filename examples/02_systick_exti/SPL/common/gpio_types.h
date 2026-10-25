@@ -14,4 +14,4 @@ typedef enum
     GPIO_PULL_DOWN
 } gpio_pull_t;
 
-#endif
+#endif /* GPIO_TYPES_H */

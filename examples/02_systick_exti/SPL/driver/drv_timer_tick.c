@@ -1,13 +1,12 @@
 /**
  * @file    drv_timer_tick.c
- * @brief   TIM3 产生 1ms 系统节拍（SPL 版本，Day 2）
+ * @brief   TIM3 产生 1ms 系统节拍
  * @note    中断安全原则：
  *          - 中断中只做节拍累加这一件事；
  *          - 更新中断标志必须清除；
  *          - 与主循环共享的节拍变量使用 volatile；
  *          - 时间相关变量统一使用 uint32_t。
  */
-
 #include "drv_timer_tick.h"
 #include "app_config.h"
 

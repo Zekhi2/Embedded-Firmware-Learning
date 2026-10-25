@@ -30,14 +30,14 @@
 1：内部上拉；2：内部下拉； */
 #define KEY_INTPUT_PULL      GPIO_PULL_UP
 
-/* ---------------- KEY EXTI 配置（Day 2 新增） ---------------- */
+/* ---------------- KEY EXTI 配置 ---------------- */
 
 #define KEY_EXTI_LINE              EXTI_Line0
 #define KEY_EXTI_PORT_SOURCE       GPIO_PortSourceGPIOA
 #define KEY_EXTI_PIN_SOURCE        GPIO_PinSource0
 #define KEY_EXTI_IRQn              EXTI0_IRQn
 
-/* ---------------- 系统节拍 Timer 配置（Day 2 新增） ---------------- */
+/* ---------------- 系统节拍 Timer ---------------- */
 #define SYSTEM_TICK_TIM         TIM3
 #define SYSTEM_TICK_TIM_CLK     RCC_APB1Periph_TIM3
 #define SYSTEM_TICK_TIM_IRQn    TIM3_IRQn
@@ -51,4 +51,4 @@
 #define SYSTEM_TICK_TIM_PSC     (72U - 1U)
 #define SYSTEM_TICK_TIM_ARR     (1000U - 1U)
 
-#endif
+#endif  /* APP_CONFIG_H */

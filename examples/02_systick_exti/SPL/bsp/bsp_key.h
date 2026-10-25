@@ -12,8 +12,8 @@ typedef enum
 void KEY_Init(void);
 key_state_t KEY_Read(void);
 
-/* Day 2 新增：EXTI 中断中只做事件计数，主循环通过接口读取 */
+/* EXTI 中断中只做事件计数，主循环通过接口读取 */
 uint32_t KEY_GetEventCount(void);
 void KEY_EXTI_IRQHandler(void);
 
-#endif
+#endif /* BSP_KEY_H */

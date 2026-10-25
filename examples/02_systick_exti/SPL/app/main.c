@@ -2,10 +2,8 @@
  * @brief         EXTI按键中断 + Timer 1ms系统节拍 + 非阻塞LED闪烁
  * @par firmware: STM32F103
  * SPL
- * @par compiler: Keil MDK
  * @date          2026-10-20
- * @version       V1.0
- * @note          Day 2：按键由轮询改为EXTI下降沿中断+事件计数；
+ * @note          按键由轮询改为EXTI下降沿中断+事件计数；
  *                LED由delay阻塞翻转改为基于节拍的500ms非阻塞闪烁。
  *                超时判断使用差值写法 (now - last) >= timeout，
  *                可正确处理 uint32_t 溢出回绕。
@@ -27,7 +25,6 @@ int main(void)
     KEY_Init();
     drv_timer_tick_init();
 
-    /* 仅主循环使用的变量，不需要 volatile */
     uint32_t led_last_tick = 0;
     uint32_t key_event_count_last = 0;
 
@@ -40,18 +37,19 @@ int main(void)
         uint32_t now = drv_timer_tick_get();
         uint32_t key_event_count_snapshot = KEY_GetEventCount();
 
-        /*-------------------------------------------------
+        /*
          * 1. 非阻塞 LED 闪烁：500ms 一次
-         *------------------------------------------------*/
+         */
         if ((uint32_t)(now - led_last_tick) >= LED_BLINK_PERIOD_MS)
         {
             led_last_tick = now;
             LED_Toggle();
         }
 
-        /*-------------------------------------------------
+        
+        /*
          * 2. 按键事件处理
-         *------------------------------------------------*/
+         */
         if (key_event_count_snapshot != key_event_count_last)
         {
             key_event_count_last = key_event_count_snapshot;
