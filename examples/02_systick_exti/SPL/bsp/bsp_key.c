@@ -3,8 +3,12 @@
 #include "drv_timer_tick.h"
 #include "app_config.h"
 
+/* 按键事件计数器 */
 static volatile uint32_t s_key_event_count = 0;
+static volatile uint32_t s_key_last_press_tick = 0;
 
+/* 把按键对应的 GPIO 配置成外部中断输入，
+并允许 CPU 响应按键中断。 */
 void KEY_Init(void)
 {
     EXTI_InitTypeDef EXTI_InitStruct;
@@ -37,11 +41,14 @@ void KEY_Init(void)
     NVIC_Init(&NVIC_InitStruct);
 }
 
+/* 封装接口， 后续可扩展
+允许外部通过接口读取 按键事件计数器 */
 uint32_t KEY_GetEventCount(void)
 {
     return s_key_event_count;
 }
 
+/* 轮询读取按键状态 */
 key_state_t KEY_Read(void)
 {
     uint8_t level;

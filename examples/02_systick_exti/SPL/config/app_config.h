@@ -42,6 +42,8 @@
 #define SYSTEM_TICK_TIM_CLK     RCC_APB1Periph_TIM3
 #define SYSTEM_TICK_TIM_IRQn    TIM3_IRQn
 
+#define KEY_DEBOUNCE_TIME_MS    50U
+
 /*
  * 假设 TIM3 输入时钟为 72MHz：
  *
