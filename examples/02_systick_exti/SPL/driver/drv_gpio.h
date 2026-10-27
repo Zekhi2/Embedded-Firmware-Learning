@@ -15,7 +15,7 @@ void drv_gpio_input_init(GPIO_TypeDef *port,
 
 void drv_gpio_write(GPIO_TypeDef *port,
                     uint16_t pin,
-                    gpio_level_t level);
+                    BitAction level);
 
 uint8_t drv_gpio_read(GPIO_TypeDef *port,
                       uint16_t pin);

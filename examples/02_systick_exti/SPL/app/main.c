@@ -1,12 +1,10 @@
 /**
- * @brief         EXTI按键中断 + Timer 1ms系统节拍 + 非阻塞LED闪烁
+ * @brief         Timer 1ms系统节拍 + EXTI按键中断 + 非阻塞LED闪烁
  * @par firmware: STM32F103
  * SPL
  * @date          2026-10-20
- * @note          按键由轮询改为EXTI下降沿中断+事件计数；
- *                LED由delay阻塞翻转改为基于节拍的500ms非阻塞闪烁。
- *                超时判断使用差值写法 (now - last) >= timeout，
- *                可正确处理 uint32_t 溢出回绕。
+ * @note          按键：轮询->EXTI下降沿中断+事件计数；
+ *                LED：delay阻塞翻转->基于节拍的500ms非阻塞闪烁。
  */
 #include "stm32f10x.h"
 #include "bsp_led.h"

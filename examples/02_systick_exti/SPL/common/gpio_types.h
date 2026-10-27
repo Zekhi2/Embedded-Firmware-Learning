@@ -1,12 +1,7 @@
 #ifndef GPIO_TYPES_H
 #define GPIO_TYPES_H
 
-typedef enum
-{
-    GPIO_LEVEL_LOW  = 0,
-    GPIO_LEVEL_HIGH = 1
-} gpio_level_t;
-
+/* SPL没有原生 PULL 枚举 */
 typedef enum
 {
     GPIO_PULL_NONE = 0,

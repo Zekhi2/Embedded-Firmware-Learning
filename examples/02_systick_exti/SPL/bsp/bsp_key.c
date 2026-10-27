@@ -48,7 +48,7 @@ uint32_t KEY_GetEventCount(void)
     return s_key_event_count;
 }
 
-/* 轮询读取按键状态 */
+/* 读取按键状态 */
 key_state_t KEY_Read(void)
 {
     uint8_t level;

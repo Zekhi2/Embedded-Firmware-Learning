@@ -22,6 +22,7 @@ void drv_gpio_input_init(GPIO_TypeDef *port,
                          uint16_t pin,
                          gpio_pull_t pull)
 {
+    /* SPL原生初始化结构体类型 */
     GPIO_InitTypeDef GPIO_InitStruct;
 
     /* 打开 GPIO 时钟 */
@@ -47,7 +48,7 @@ void drv_gpio_input_init(GPIO_TypeDef *port,
 
 void drv_gpio_write(GPIO_TypeDef *port,
                     uint16_t pin,
-                    gpio_level_t level)
+                    BitAction level)
 {
     if (level == 1)
     {
@@ -68,7 +69,7 @@ uint8_t drv_gpio_read(GPIO_TypeDef *port,
 void drv_gpio_toggle(GPIO_TypeDef *port,
                      uint16_t pin)
 {
-    if (GPIO_ReadOutputDataBit(port, pin) != 0)
+    if (GPIO_ReadOutputDataBit(port, pin) != Bit_RESET)
     {
         GPIO_ResetBits(port, pin);
     }

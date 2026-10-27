@@ -69,9 +69,7 @@ void drv_timer_tick_irq_handler(void)
         /* 清除中断标志 */
         TIM_ClearITPendingBit(SYSTEM_TICK_TIM, TIM_IT_Update);
 
-        /*
-         * 系统节拍累加。中断中只做这一件事。
-         */
+        /* 系统节拍累加 */
         s_system_tick_ms++;
     }
 }
