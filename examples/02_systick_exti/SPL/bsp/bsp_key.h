@@ -3,10 +3,11 @@
 
 #include <stdint.h>
 
+/* 按键逻辑状态枚举 */
 typedef enum
 {
     KEY_RELEASED = 0,
-    KEY_PRESSED  = 1
+    KEY_PRESSED
 } key_state_t;
 
 void KEY_Init(void);

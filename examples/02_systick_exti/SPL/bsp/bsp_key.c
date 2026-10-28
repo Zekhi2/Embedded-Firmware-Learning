@@ -48,7 +48,7 @@ uint32_t KEY_GetEventCount(void)
     return s_key_event_count;
 }
 
-/* 读取按键状态 */
+/* 读取按键逻辑状态 */
 key_state_t KEY_Read(void)
 {
     uint8_t level;
@@ -59,10 +59,8 @@ key_state_t KEY_Read(void)
     {
         return KEY_PRESSED;
     }
-    else
-    {
-        return KEY_RELEASED;
-    }
+    
+    return KEY_RELEASED;
 }
 
 void KEY_EXTI_IRQHandler(void)

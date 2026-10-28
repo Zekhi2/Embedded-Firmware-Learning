@@ -1,16 +1,12 @@
 #include "key_fsm.h"
 
-/*=====================================================
- * 内部工具：计算经过时间
- *=====================================================*/
+/* 内部工具：计算经过时间 */
 static uint32_t key_fsm_elapsed(uint32_t now, uint32_t last)
 {
     return (uint32_t)(now - last);
 }
 
-/*=====================================================
- * 初始化
- *=====================================================*/
+/* 初始化 */
 void key_fsm_init(key_fsm_t           *key,
                   const key_cfg_t     *cfg,
                   key_read_level_fn    read_level)
@@ -29,9 +25,7 @@ void key_fsm_init(key_fsm_t           *key,
     key->long_press_reported = false;
 }
 
-/*=====================================================
- * 状态机扫描
- *=====================================================*/
+/* 状态机扫描 */
 key_event_t key_fsm_scan(key_fsm_t *key, uint32_t now)
 {
     key_event_t event = KEY_EVENT_NONE;
@@ -51,7 +45,7 @@ key_event_t key_fsm_scan(key_fsm_t *key, uint32_t now)
          *---------------------------------------------*/
         case KEY_FSM_STATE_RELEASED:
         {
-            if (level == KEY_LEVEL_PRESSED)
+            if (level == KEY_PRESSED_LEVEL)
             {
                 key->state            = KEY_FSM_STATE_DEBOUNCE_PRESS;
                 key->state_enter_tick = now;

@@ -42,10 +42,7 @@ typedef enum
 #define KEY_EXTI_IRQn              EXTI0_IRQn
 
 /* --------------- 按键参数配置 ----------------- */
-#define KEY_SCAN_PERIOD_MS          10U         /* 按键扫描周期 */
-#define KEY_DEBOUNCE_TIME_MS        30U         /* 按键消抖时间 */
-#define KEY_LONG_PRESS_TIME_MS      1000U       /* 长按时间 */
-#define KEY_REPEAT_TIME_MS          300U        /* 长按触发时间 */
+#define KEY_DEBOUNCE_TIME_MS        50U         /* 按键消抖时间 */
 
 /* ---------------- 系统节拍 Timer ---------------- */
 

@@ -11,7 +11,7 @@ void drv_gpio_output_init(GPIO_TypeDef *port,
 void drv_gpio_input_init(GPIO_TypeDef *port,
                          uint32_t rcc,
                          uint16_t pin,
-                         uint8_t pull);
+                         gpio_pull_t pull);
 
 void drv_gpio_write(GPIO_TypeDef *port,
                     uint16_t pin,
