@@ -5,14 +5,20 @@
 
 static key_fsm_t s_key;
 
-/* 读取具体硬件电平 */
-static key_level_t key_read_level(void)
+/* 读取硬件电平，
+并将之转换为按键逻辑状态 */
+key_state_t KEY_Read(void)
 {
     uint8_t level;
 
     level = drv_gpio_read(KEY_GPIO_PORT, KEY_GPIO_PIN);
 
-    return level;
+    if (level == KEY_PRESSED_LEVEL)
+    {
+        return KEY_PRESSED;
+    }
+    
+    return KEY_RELEASED;
 }
 
 void KEY_Init(void)
@@ -26,9 +32,10 @@ void KEY_Init(void)
                         KEY0_INPUT_MODE);
 
     /* 按键参数配置 */
-    cfg.debounce_ms    = KEY_DEBOUNCE_TIME_MS;
-    cfg.long_press_ms  = KEY_LONG_PRESS_TIME_MS;
-    cfg.repeat_ms      = KEY_REPEAT_TIME_MS;
+    cfg.debounce_ms      = KEY_DEBOUNCE_TIME_MS;
+    cfg.long_press_ms    = KEY_LONG_PRESS_TIME_MS;
+    cfg.repeat_ms        = KEY_REPEAT_TIME_MS;
+    cfg.double_click_ms  = KEY_DOUBLE_CLICK_WINDOW_MS;
 
     /* 初始化通用状态机 */
     key_fsm_init(&s_key, &cfg, key_read_level);

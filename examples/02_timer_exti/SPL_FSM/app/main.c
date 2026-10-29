@@ -9,6 +9,7 @@
 #include "bsp_led.h"
 #include "bsp_key.h"
 #include "drv_timer_tick.h"
+#include "app_config.h"
 
 /* LED 非阻塞闪烁周期（ms） */
 #define LED_BLINK_PERIOD_MS    500U
@@ -42,7 +43,7 @@ int main(void)
 
             switch (key_event)
             {
-                case KEY_EVENT_CLICK:
+                case KEY_EVENT_SINGLE_CLICK:
                 {
                     /* 短按：翻转 LED，并重置闪烁节拍 */
                     LED_Toggle();
@@ -50,6 +51,12 @@ int main(void)
                 }
                 break;
 
+                case KEY_EVENT_DOUBLE_CLICK:
+                {
+                    /* 示例：双击进入某种模式 */
+                }
+                break;
+                
                 case KEY_EVENT_LONG_START:
                 {
                     /* 长按：示例，可自定义功能 */
@@ -66,8 +73,9 @@ int main(void)
                 break;
             }
         }
+        
         /* 非阻塞 LED 闪烁：500ms 一次 */
-        else if ((uint32_t)(now - led_last_tick) >= LED_BLINK_PERIOD_MS)
+        if ((uint32_t)(now - led_last_tick) >= LED_BLINK_PERIOD_MS)
         {
             led_last_tick = now;
             LED_Toggle();

@@ -48,7 +48,8 @@ uint32_t KEY_GetEventCount(void)
     return s_key_event_count;
 }
 
-/* 读取按键逻辑状态 */
+/* 读取硬件电平，
+并将之转换为按键逻辑状态 */
 key_state_t KEY_Read(void)
 {
     uint8_t level;

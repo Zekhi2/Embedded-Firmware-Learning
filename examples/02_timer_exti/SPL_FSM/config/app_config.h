@@ -46,6 +46,7 @@ typedef enum
 #define KEY_DEBOUNCE_TIME_MS        30U         /* 按键消抖时间 */
 #define KEY_LONG_PRESS_TIME_MS      1000U       /* 长按时间 */
 #define KEY_REPEAT_TIME_MS          300U        /* 长按触发时间 */
+#define KEY_DOUBLE_CLICK_WINDOW_MS  300U        /* 双击等待窗口 */
 
 /* ---------------- 系统节拍 Timer ---------------- */
 
