@@ -15,6 +15,9 @@
 0：低电平点亮；1：高电平点亮 */
 #define LED_ON_LEVEL        Bit_RESET
 
+/* LED 非阻塞闪烁周期（ms） */
+#define LED_BLINK_PERIOD_MS    500U
+
 /* ---------------- KEY 配置 ---------------- */
 
 /* 假设按键接在 PA0 */
@@ -41,11 +44,28 @@ typedef enum
 #define KEY_EXTI_PIN_SOURCE        GPIO_PinSource0
 #define KEY_EXTI_IRQn              EXTI0_IRQn
 
+/*
+ * 如果想减少中断次数，可以只使用下降沿：
+ *
+ * #define KEY_EXTI_TRIGGER          EXTI_Trigger_Falling
+ *
+ * 如果希望按下和释放都能尽快通知状态机扫描，
+ * 可以使用双边沿：
+ *
+ * #define KEY_EXTI_TRIGGER          EXTI_Trigger_Rising_Falling
+ *
+ * 注意：
+ * 双边沿会因为机械抖动产生更多中断，
+ * 但这里中断只作通知，不影响状态机判断。
+ */
+#define KEY_EXTI_TRIGGER            EXTI_Trigger_Rising_Falling
+
 /* --------------- 按键参数配置 ----------------- */
 #define KEY_SCAN_PERIOD_MS          10U         /* 按键扫描周期 */
 #define KEY_DEBOUNCE_TIME_MS        30U         /* 按键消抖时间 */
 #define KEY_LONG_PRESS_TIME_MS      1000U       /* 长按时间 */
 #define KEY_REPEAT_TIME_MS          300U        /* 长按触发时间 */
+#define KEY_DOUBLE_CLICK_WINDOW_MS  300U
 
 /* ---------------- 系统节拍 Timer ---------------- */
 
