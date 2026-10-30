@@ -36,10 +36,10 @@ typedef enum
 
 /* ---------------- KEY EXTI 配置 ---------------- */
 
-#define KEY_EXTI_LINE              EXTI_Line0
-#define KEY_EXTI_PORT_SOURCE       GPIO_PortSourceGPIOA
-#define KEY_EXTI_PIN_SOURCE        GPIO_PinSource0
-#define KEY_EXTI_IRQn              EXTI0_IRQn
+// #define KEY_EXTI_LINE              EXTI_Line0
+// #define KEY_EXTI_PORT_SOURCE       GPIO_PortSourceGPIOA
+// #define KEY_EXTI_PIN_SOURCE        GPIO_PinSource0
+// #define KEY_EXTI_IRQn              EXTI0_IRQn
 
 /* --------------- 按键参数配置 ----------------- */
 #define KEY_SCAN_PERIOD_MS          10U         /* 按键扫描周期 */

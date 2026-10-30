@@ -3,16 +3,12 @@
  * @par firmware: STM32F103
  * SPL
  * @date          2026-10-20
- * @note          按键：轮询->EXTI下降沿中断+事件计数；
- *                LED：delay阻塞翻转->基于节拍的500ms非阻塞闪烁。
+ * @note          LED：delay阻塞翻转->基于节拍的500ms非阻塞闪烁。
  */
 #include "stm32f10x.h"
 #include "bsp_led.h"
 #include "bsp_key.h"
 #include "drv_timer_tick.h"
-
-/* LED 非阻塞闪烁周期（ms） */
-#define LED_BLINK_PERIOD_MS    500U
 
 int main(void)
 {

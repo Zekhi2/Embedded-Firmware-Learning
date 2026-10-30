@@ -48,8 +48,8 @@ uint32_t KEY_GetEventCount(void)
     return s_key_event_count;
 }
 
-/* 读取按键状态 */
-key_level_t KEY_Read(void)
+/* 转换为通用按键逻辑状态 */
+key_state_t KEY_Read(void)
 {
     uint8_t level;
 
@@ -57,11 +57,11 @@ key_level_t KEY_Read(void)
 
     if (level == KEY_PRESSED_LEVEL)
     {
-        return KEY_PRESSED_LEVEL;
+        return KEY_PRESSED;
     }
     else
     {
-        return KEY_RELEASED_LEVEL;
+        return KEY_RELEASED;
     }
 }
 

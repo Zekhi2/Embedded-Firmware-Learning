@@ -33,7 +33,7 @@ void key_fsm_init(key_fsm_t           *key,
 key_event_t key_fsm_scan(key_fsm_t *key, uint32_t now)
 {
     key_event_t event = KEY_EVENT_NONE;
-    key_level_t level;
+    key_state_t level;
 
     if (key == 0 || key->read_level == 0)
     {
@@ -66,7 +66,7 @@ key_event_t key_fsm_scan(key_fsm_t *key, uint32_t now)
          *---------------------------------------------*/
         case KEY_FSM_STATE_DEBOUNCE_PRESS:
         {
-            if (level == KEY_LEVEL_RELEASED)
+            if (level == KEY_RELEASED)
             {
                 /*
                  * 如果当前正在等待第二次按下，
@@ -97,7 +97,7 @@ key_event_t key_fsm_scan(key_fsm_t *key, uint32_t now)
                 else
                 {
                     key->state       = KEY_FSM_STATE_PRESSED;
-                    key->state_tick  = now;
+                    key->state_enter_tick  = now;
                     key->long_active = false;
                 }
             }
@@ -109,7 +109,7 @@ key_event_t key_fsm_scan(key_fsm_t *key, uint32_t now)
          *---------------------------------------------*/
         case KEY_FSM_STATE_PRESSED:
         {
-            if (level == KEY_LEVEL_RELEASED)
+            if (level == KEY_RELEASED)
             {
                 key->state            = KEY_FSM_STATE_DEBOUNCE_RELEASE;
                 key->state_enter_tick = now;
@@ -118,7 +118,6 @@ key_event_t key_fsm_scan(key_fsm_t *key, uint32_t now)
             {
                 /*
                  * 判断长按。
-                 *
                  * 如果 long_press_ms 配置为 0，
                  * 可以认为不启用长按。
                  */
@@ -148,7 +147,7 @@ key_event_t key_fsm_scan(key_fsm_t *key, uint32_t now)
          *---------------------------------------------*/
         case KEY_FSM_STATE_DEBOUNCE_RELEASE:
         {
-            if (level == KEY_LEVEL_PRESSED)
+            if (level == KEY_PRESSED)
             {
                 if (key->double_active == true)
                 {
@@ -208,7 +207,7 @@ key_event_t key_fsm_scan(key_fsm_t *key, uint32_t now)
          *---------------------------------------------*/
         case KEY_FSM_STATE_WAIT_DOUBLE:
         {
-            if (level == KEY_LEVEL_PRESSED)
+            if (level == KEY_PRESSED)
             {
                 /*
                  * 双击窗口内检测到第二次按下。
@@ -240,7 +239,7 @@ key_event_t key_fsm_scan(key_fsm_t *key, uint32_t now)
          *---------------------------------------------*/
         case KEY_FSM_STATE_DOUBLE_PRESSED:
         {
-            if (level == KEY_LEVEL_RELEASED)
+            if (level == KEY_RELEASED)
             {
                 key->state            = KEY_FSM_STATE_DEBOUNCE_RELEASE;
                 key->state_enter_tick = now;
