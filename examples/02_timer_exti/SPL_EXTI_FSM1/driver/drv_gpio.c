@@ -7,7 +7,6 @@ void drv_gpio_output_init(GPIO_TypeDef *port,
 {
     GPIO_InitTypeDef GPIO_InitStruct;
 
-    /* 打开 GPIO 时钟 */
     RCC_APB2PeriphClockCmd(rcc, ENABLE);
 
     GPIO_InitStruct.GPIO_Pin   = pin;
@@ -22,10 +21,8 @@ void drv_gpio_input_init(GPIO_TypeDef *port,
                          uint16_t pin,
                          gpio_pull_t pull)
 {
-    /* SPL原生初始化结构体类型 */
     GPIO_InitTypeDef GPIO_InitStruct;
 
-    /* 打开 GPIO 时钟 */
     RCC_APB2PeriphClockCmd(rcc, ENABLE);
 
     GPIO_InitStruct.GPIO_Pin  = pin;
@@ -48,9 +45,9 @@ void drv_gpio_input_init(GPIO_TypeDef *port,
 
 void drv_gpio_write(GPIO_TypeDef *port,
                     uint16_t pin,
-                    BitAction level)
+                    gpio_level_t level)
 {
-    if (level == 1)
+    if (level == GPIO_LEVEL_HIGH)
     {
         GPIO_SetBits(port, pin);
     }
@@ -60,10 +57,17 @@ void drv_gpio_write(GPIO_TypeDef *port,
     }
 }
 
-uint8_t drv_gpio_read(GPIO_TypeDef *port,
-                      uint16_t pin)
+gpio_level_t drv_gpio_read(GPIO_TypeDef *port,
+                           uint16_t pin)
 {
-    return (uint8_t)GPIO_ReadInputDataBit(port, pin);
+    if (GPIO_ReadInputDataBit(port, pin) != Bit_RESET)
+    {
+        return GPIO_LEVEL_HIGH;
+    }
+    else
+    {
+        return GPIO_LEVEL_LOW;
+    }
 }
 
 void drv_gpio_toggle(GPIO_TypeDef *port,

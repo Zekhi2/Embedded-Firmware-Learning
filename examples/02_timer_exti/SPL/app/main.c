@@ -49,10 +49,11 @@ int main(void)
             LED_Toggle();
             led_last_tick = now;
         }
+        
         /*
          * 非阻塞 LED 闪烁：500ms 一次
          */
-        else if ((uint32_t)(now - led_last_tick) >= LED_BLINK_PERIOD_MS)
+        if ((uint32_t)(now - led_last_tick) >= LED_BLINK_PERIOD_MS)
         {
             led_last_tick = now;
             LED_Toggle();

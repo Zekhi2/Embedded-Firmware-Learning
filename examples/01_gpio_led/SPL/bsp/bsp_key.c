@@ -12,7 +12,7 @@ void KEY_Init(void)
 
 key_state_t KEY_Read(void)
 {
-    uint8_t level;
+    gpio_level_t level;
 
     level = drv_gpio_read(KEY_GPIO_PORT, KEY_GPIO_PIN);
 

@@ -6,8 +6,6 @@
 
 void KEY_Init(void);
 key_event_t KEY_Process(void);
-// key_level_t KEY_Read(void);
-// uint32_t KEY_GetEventCount(void);
-// void KEY_EXTI_IRQHandler(void);
+key_state_t KEY_Read(void);
 
 #endif /* BSP_KEY_H */

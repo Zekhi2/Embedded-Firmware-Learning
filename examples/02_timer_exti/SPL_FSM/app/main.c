@@ -1,9 +1,10 @@
 /**
- * @brief         Timer 1ms系统节拍 + 非阻塞LED闪烁 + 定时扫描型按键有限状态机
+ * @brief         Timer 1ms系统节拍 + 非阻塞LED闪烁 + 按键有限状态机
  * @par firmware: STM32F103
  * SPL
  * @date          2026-10-20
  * @note          LED：delay阻塞翻转->基于节拍的500ms非阻塞闪烁。
+ *                KEY：定时扫描型按键有限状态机处理。
  */
 #include "stm32f10x.h"
 #include "bsp_led.h"
@@ -11,20 +12,17 @@
 #include "drv_timer_tick.h"
 #include "app_config.h"
 
-/* LED 非阻塞闪烁周期（ms） */
-#define LED_BLINK_PERIOD_MS    500U
-
 int main(void)
 {
+    uint32_t led_last_tick = 0;
+    uint32_t key_last_scan_tick = 0;
+
     /* 配置 NVIC 分组 */
     NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
 
     drv_timer_tick_init();
     LED_Init();
     KEY_Init();
-
-    uint32_t led_last_tick = 0;
-    uint32_t key_event_count_last = 0;
 
     while (1)
     {

@@ -5,11 +5,10 @@
 
 static key_fsm_t s_key;
 
-/* 读取硬件电平，
-并将之转换为按键逻辑状态 */
+/* 读取硬件电平，并将之转换为按键逻辑状态 */
 key_state_t KEY_Read(void)
 {
-    uint8_t level;
+    gpio_level_t level;
 
     level = drv_gpio_read(KEY_GPIO_PORT, KEY_GPIO_PIN);
 
@@ -26,19 +25,19 @@ void KEY_Init(void)
     key_cfg_t cfg;
 
     /* GPIO 输入初始化 */
-    drv_gpio_input_init(KEY0_GPIO_PORT,
-                        KEY0_GPIO_CLK,
-                        KEY0_GPIO_PIN,
-                        KEY0_INPUT_MODE);
+    drv_gpio_input_init(KEY_GPIO_PORT,
+                        KEY_GPIO_CLK,
+                        KEY_GPIO_PIN,
+                        KEY_INPUT_PULL);
 
-    /* 按键参数配置 */
+    /* 初始化通用状态机 */
     cfg.debounce_ms      = KEY_DEBOUNCE_TIME_MS;
     cfg.long_press_ms    = KEY_LONG_PRESS_TIME_MS;
     cfg.repeat_ms        = KEY_REPEAT_TIME_MS;
     cfg.double_click_ms  = KEY_DOUBLE_CLICK_WINDOW_MS;
 
     /* 初始化通用状态机 */
-    key_fsm_init(&s_key, &cfg, key_read_level);
+    key_fsm_init(&s_key, &cfg, KEY_Read);
 }
 
 /* 周期性扫描 */

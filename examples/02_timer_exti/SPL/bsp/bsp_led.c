@@ -2,6 +2,8 @@
 #include "drv_gpio.h"
 #include "app_config.h"
 
+#define LED_INACTIVE_LEVEL  ((gpio_level_t)(1U - (uint32_t)LED_ACTIVE_LEVEL))
+
 /* LED软件状态标记 */
 static uint8_t s_led_state = 0;
 
@@ -20,7 +22,7 @@ void LED_On(void)
 
     drv_gpio_write(LED_GPIO_PORT,
                    LED_GPIO_PIN,
-                   LED_ON_LEVEL);
+                   LED_ACTIVE_LEVEL);
 }
 
 void LED_Off(void)
@@ -29,7 +31,7 @@ void LED_Off(void)
 
     drv_gpio_write(LED_GPIO_PORT,
                    LED_GPIO_PIN,
-                   !LED_ON_LEVEL);
+                   LED_INACTIVE_LEVEL);
 }
 
 void LED_Toggle(void)

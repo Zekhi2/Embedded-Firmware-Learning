@@ -18,7 +18,7 @@ void KEY_Init(void)
     drv_gpio_input_init(KEY_GPIO_PORT,
                         KEY_GPIO_CLK,
                         KEY_GPIO_PIN,
-                        KEY_INTPUT_PULL);
+                        KEY_INPUT_PULL);
 
     /* 使能 AFIO 时钟，EXTI 线映射依赖 AFIO */
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
@@ -41,18 +41,16 @@ void KEY_Init(void)
     NVIC_Init(&NVIC_InitStruct);
 }
 
-/* 封装接口， 后续可扩展
-允许外部通过接口读取 按键事件计数器 */
+/* 封装接口，允许外部读取按键事件计数器 */
 uint32_t KEY_GetEventCount(void)
 {
     return s_key_event_count;
 }
 
-/* 读取硬件电平，
-并将之转换为按键逻辑状态 */
+/* 读取硬件电平，并将之转换为按键逻辑状态 */
 key_state_t KEY_Read(void)
 {
-    uint8_t level;
+    gpio_level_t level;
 
     level = drv_gpio_read(KEY_GPIO_PORT, KEY_GPIO_PIN);
 
@@ -72,7 +70,6 @@ void KEY_EXTI_IRQHandler(void)
 
         /*
          * 中断中只记录事件次数，
-         * 不做按键消抖、业务处理、打印等复杂操作。
          * 中断消抖锁定机制，
          * 若距离上次有效触发不足 50ms，视为物理机械抖动，直接滤除。
          */

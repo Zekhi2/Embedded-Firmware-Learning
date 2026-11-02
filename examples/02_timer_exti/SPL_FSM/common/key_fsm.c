@@ -220,7 +220,7 @@ key_event_t key_fsm_scan(key_fsm_t *key, uint32_t now)
                 key->state            = KEY_FSM_STATE_DEBOUNCE_PRESS;
                 key->state_enter_tick = now;
             }
-            else if (key_elapsed(now, key->double_wait_tick) >= key->cfg.double_click_ms)
+            else if (key_fsm_elapsed(now, key->double_wait_tick) >= key->cfg.double_click_ms)
             {
                 /*
                  * 双击窗口超时。

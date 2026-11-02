@@ -49,7 +49,7 @@ void drv_gpio_write(GPIO_TypeDef *port,
                     uint16_t pin,
                     gpio_level_t level)
 {
-    if (level == 1)
+    if (level == GPIO_LEVEL_HIGH)
     {
         GPIO_SetBits(port, pin);
     }
@@ -59,16 +59,23 @@ void drv_gpio_write(GPIO_TypeDef *port,
     }
 }
 
-uint8_t drv_gpio_read(GPIO_TypeDef *port,
-                      uint16_t pin)
+gpio_level_t drv_gpio_read(GPIO_TypeDef *port,
+                           uint16_t pin)
 {
-    return (uint8_t)GPIO_ReadInputDataBit(port, pin);
+    if (GPIO_ReadInputDataBit(port, pin) != Bit_RESET)
+    {
+        return GPIO_LEVEL_HIGH;
+    }
+    else
+    {
+        return GPIO_LEVEL_LOW;
+    }
 }
 
 void drv_gpio_toggle(GPIO_TypeDef *port,
                      uint16_t pin)
 {
-    if (GPIO_ReadOutputDataBit(port, pin) != 0)
+    if (GPIO_ReadOutputDataBit(port, pin) != Bit_RESET)
     {
         GPIO_ResetBits(port, pin);
     }

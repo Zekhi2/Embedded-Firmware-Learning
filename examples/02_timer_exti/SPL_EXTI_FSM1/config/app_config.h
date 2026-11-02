@@ -11,9 +11,8 @@
 #define LED_GPIO_PIN         GPIO_Pin_13
 #define LED_GPIO_CLK         RCC_APB2Periph_GPIOC
 
-/* LED 点亮时对应引脚电平
-0：低电平点亮；1：高电平点亮 */
-#define LED_ON_LEVEL        Bit_RESET
+/* 单一有效电平：低电平点亮 */
+#define LED_ACTIVE_LEVEL     GPIO_LEVEL_LOW
 
 /* LED 非阻塞闪烁周期（ms） */
 #define LED_BLINK_PERIOD_MS    500U
@@ -25,17 +24,12 @@
 #define KEY_GPIO_PIN         GPIO_Pin_0
 #define KEY_GPIO_CLK         RCC_APB2Periph_GPIOA
 
-/* 客观软件标准——按键按下时对应引脚电平
-PRESSED -- 0：按下为低电平；1：按下为高电平 */
-typedef enum
-{
-    KEY_RELEASED_LEVEL = Bit_SET,
-    KEY_PRESSED_LEVEL  = Bit_RESET
-} key_level_t;
+/* 单一有效电平：按下为低电平 */
+#define KEY_PRESSED_LEVEL    GPIO_LEVEL_LOW
 
 /* 主动硬件配置——按键输入引脚内部偏置方式
 1：内部上拉；2：内部下拉； */
-#define KEY_INTPUT_PULL      GPIO_PULL_UP
+#define KEY_INPUT_PULL       GPIO_PULL_UP
 
 /* ---------------- KEY EXTI 配置 ---------------- */
 
@@ -46,17 +40,10 @@ typedef enum
 
 /*
  * 如果想减少中断次数，可以只使用下降沿：
- *
  * #define KEY_EXTI_TRIGGER          EXTI_Trigger_Falling
  *
- * 如果希望按下和释放都能尽快通知状态机扫描，
- * 可以使用双边沿：
- *
+ * 如果希望按下和释放都能尽快通知状态机扫描，可以使用双边沿：
  * #define KEY_EXTI_TRIGGER          EXTI_Trigger_Rising_Falling
- *
- * 注意：
- * 双边沿会因为机械抖动产生更多中断，
- * 但这里中断只作通知，不影响状态机判断。
  */
 #define KEY_EXTI_TRIGGER            EXTI_Trigger_Rising_Falling
 
@@ -65,7 +52,7 @@ typedef enum
 #define KEY_DEBOUNCE_TIME_MS        30U         /* 按键消抖时间 */
 #define KEY_LONG_PRESS_TIME_MS      1000U       /* 长按时间 */
 #define KEY_REPEAT_TIME_MS          300U        /* 长按触发时间 */
-#define KEY_DOUBLE_CLICK_WINDOW_MS  300U
+#define KEY_DOUBLE_CLICK_WINDOW_MS  300U        /* 双击等待窗口 */
 
 /* ---------------- 系统节拍 Timer ---------------- */
 

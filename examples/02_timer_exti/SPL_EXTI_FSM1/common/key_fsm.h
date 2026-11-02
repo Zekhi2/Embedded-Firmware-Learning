@@ -14,14 +14,14 @@ typedef enum
 /* 按键事件 */
 typedef enum
 {
-    KEY_EVENT_NONE = 0,     /* 空闲状态 */
+    KEY_EVENT_NONE = 0,     /* 无事件 */
     KEY_EVENT_SINGLE_CLICK,
     KEY_EVENT_DOUBLE_CLICK,
     KEY_EVENT_LONG_START,   /* 长按事件 */
     KEY_EVENT_LONG_REPEAT   /* 长按重复事件 */
 } key_event_t;
 
-/* 按键状态 */
+/* 按键内部状态 */
 typedef enum
 {
     KEY_FSM_STATE_RELEASED = 0,     /* 稳定释放 */
@@ -42,14 +42,14 @@ typedef struct
     uint32_t double_click_ms;
 } key_cfg_t;
 
-/* 按键电平读取接口 */
-typedef key_level_t (*key_read_level_fn)(void);
+/* 按键逻辑状态读取接口 */
+typedef key_state_t (*key_read_state_fn)(void);
 
 /* 按键状态机对象 */
 typedef struct
 {
     key_cfg_t          cfg;
-    key_read_level_fn  read_level;
+    key_read_state_fn  read_state;
 
     key_fsm_state_t    state;
     uint32_t           state_enter_tick;
@@ -64,7 +64,7 @@ typedef struct
 /* 接口函数 */
 void key_fsm_init(key_fsm_t           *key,
                   const key_cfg_t     *cfg,
-                  key_read_level_fn    read_level);
+                  key_read_state_fn    read_state);
 
 key_event_t key_fsm_scan(key_fsm_t *key, uint32_t now);
 

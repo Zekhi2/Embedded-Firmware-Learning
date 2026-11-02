@@ -9,6 +9,7 @@
 #include "stm32f10x.h"
 #include "bsp_key.h"
 #include "drv_timer_tick.h"
+#include "app_config.h"
 
 void EXTI0_IRQHandler(void)
 {

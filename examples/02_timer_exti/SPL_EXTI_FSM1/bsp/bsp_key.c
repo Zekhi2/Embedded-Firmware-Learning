@@ -2,23 +2,27 @@
 #include "drv_gpio.h"
 #include "drv_timer_tick.h"
 #include "app_config.h"
+#include "stm32f10x.h"
 
-/* 按键事件计数器 */
-static volatile uint32_t s_key_event_count = 0;
-static volatile uint32_t s_key_last_press_tick = 0;
+/* 按键状态机对象 */
+static key_fsm_t s_key;
+/* EXTI 边沿标志 */
+static volatile bool s_key_edge_flag = false;
 
 /* 把按键对应的 GPIO 配置成外部中断输入，
-并允许 CPU 响应按键中断。 */
+并允许 CPU 响应按键中断。
+包含：GPIO 输入初始化、EXTI 初始化、NVIC 初始化、状态机初始化 */
 void KEY_Init(void)
 {
     EXTI_InitTypeDef EXTI_InitStruct;
     NVIC_InitTypeDef NVIC_InitStruct;
+    key_cfg_t cfg;
 
     /* GPIO 输入初始化（内部上拉） */
     drv_gpio_input_init(KEY_GPIO_PORT,
                         KEY_GPIO_CLK,
                         KEY_GPIO_PIN,
-                        KEY_INTPUT_PULL);
+                        KEY_INPUT_PULL);
 
     /* 使能 AFIO 时钟，EXTI 线映射依赖 AFIO */
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
@@ -26,12 +30,15 @@ void KEY_Init(void)
     /* 将 PA0 映射到 EXTI Line0 */
     GPIO_EXTILineConfig(KEY_EXTI_PORT_SOURCE, KEY_EXTI_PIN_SOURCE);
 
-    /* 配置 EXTI：下降沿触发中断 */
+    /* 配置 EXTI */
     EXTI_InitStruct.EXTI_Line    = KEY_EXTI_LINE;
     EXTI_InitStruct.EXTI_Mode    = EXTI_Mode_Interrupt;
-    EXTI_InitStruct.EXTI_Trigger = EXTI_Trigger_Falling;
+    EXTI_InitStruct.EXTI_Trigger = KEY_EXTI_TRIGGER;
     EXTI_InitStruct.EXTI_LineCmd = ENABLE;
     EXTI_Init(&EXTI_InitStruct);
+
+    /* 清除可能已经存在的 EXTI 挂起标志 */
+    EXTI_ClearITPendingBit(KEY_EXTI_LINE);
 
     /* 配置 NVIC */
     NVIC_InitStruct.NVIC_IRQChannel                   = KEY_EXTI_IRQn;
@@ -39,19 +46,20 @@ void KEY_Init(void)
     NVIC_InitStruct.NVIC_IRQChannelSubPriority        = 1;
     NVIC_InitStruct.NVIC_IRQChannelCmd                = ENABLE;
     NVIC_Init(&NVIC_InitStruct);
+
+    /* 初始化通用状态机 */
+    cfg.debounce_ms     = KEY_DEBOUNCE_TIME_MS;
+    cfg.long_press_ms   = KEY_LONG_PRESS_TIME_MS;
+    cfg.repeat_ms       = KEY_REPEAT_TIME_MS;
+    cfg.double_click_ms = KEY_DOUBLE_CLICK_WINDOW_MS;
+    
+    key_fsm_init(&s_key, &cfg, KEY_Read);
 }
 
-/* 封装接口， 后续可扩展
-允许外部通过接口读取 按键事件计数器 */
-uint32_t KEY_GetEventCount(void)
-{
-    return s_key_event_count;
-}
-
-/* 转换为通用按键逻辑状态 */
+/* 读取按键状态，并转换为通用按键逻辑状态 */
 key_state_t KEY_Read(void)
 {
-    uint8_t level;
+    gpio_level_t level;
 
     level = drv_gpio_read(KEY_GPIO_PORT, KEY_GPIO_PIN);
 
@@ -59,10 +67,35 @@ key_state_t KEY_Read(void)
     {
         return KEY_PRESSED;
     }
-    else
-    {
-        return KEY_RELEASED;
-    }
+    
+    return KEY_RELEASED;
+}
+
+/* 由 EXTI 中断入口调用，只标记“有边沿发生” */
+void KEY_NotifyEdge(void)
+{
+    s_key_edge_flag = true;
+}
+
+/* 主循环调用，取出边沿标志 */
+bool KEY_TakeEdgeFlag(void)
+{
+    bool flag;
+
+    flag = s_key_edge_flag;
+    s_key_edge_flag = false;
+
+    return flag;
+}
+
+/* 主循环周期调用 */
+key_event_t KEY_Process(void)
+{
+    uint32_t now;
+
+    now = drv_timer_tick_get();
+
+    return key_fsm_scan(&s_key, now);
 }
 
 void KEY_EXTI_IRQHandler(void)
@@ -71,17 +104,6 @@ void KEY_EXTI_IRQHandler(void)
     {
         EXTI_ClearITPendingBit(KEY_EXTI_LINE);
 
-        /*
-         * 中断中只记录事件次数，
-         * 不做按键消抖、业务处理、打印等复杂操作。
-         * 中断消抖锁定机制，
-         * 若距离上次有效触发不足 50ms，视为物理机械抖动，直接滤除。
-         */
-        uint32_t now = drv_timer_tick_get();
-        if ((uint32_t)(now - s_key_last_press_tick) >= KEY_DEBOUNCE_TIME_MS)
-        {
-            s_key_last_press_tick = now;
-            s_key_event_count++;
-        }
+        KEY_NotifyEdge();
     }
 }
