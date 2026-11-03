@@ -9,15 +9,15 @@ static uint32_t key_fsm_elapsed(uint32_t now, uint32_t last)
 /* 初始化 */
 void key_fsm_init(key_fsm_t           *key,
                   const key_cfg_t     *cfg,
-                  key_read_level_fn    read_level)
+                  key_read_state_fn    read_state)
 {
-    if (key == 0 || cfg == 0 || read_level == 0)
+    if (key == 0 || cfg == 0 || read_state == 0)
     {
         return;
     }
 
     key->cfg                 = *cfg;
-    key->read_level          = read_level;
+    key->read_state          = read_state;
 
     key->state               = KEY_FSM_STATE_RELEASED;
     key->state_enter_tick    = 0;
@@ -35,12 +35,12 @@ key_event_t key_fsm_scan(key_fsm_t *key, uint32_t now)
     key_event_t event = KEY_EVENT_NONE;
     key_state_t level;
 
-    if (key == 0 || key->read_level == 0)
+    if (key == 0 || key->read_state == 0)
     {
         return KEY_EVENT_NONE;
     }
 
-    level = key->read_level();
+    level = key->read_state();
 
     switch (key->state)
     {

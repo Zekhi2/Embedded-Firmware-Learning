@@ -1,41 +1,29 @@
 /**
- * @brief         EXTI按键中断 + Timer 1ms系统节拍 + 非阻塞LED闪烁
+ * @brief         Timer 1ms系统节拍 + EXTI按键中断 + 非阻塞LED闪烁
  * @par firmware: STM32F103 HAL (STM32CubeMX)
- * @par compiler: Keil MDK
  * @date          2026-10-25
- * @version       V1.0
- * @note          Day 2：按键由轮询改为EXTI下降沿中断+事件计数；
- *                LED由delay阻塞翻转改为基于节拍的500ms非阻塞闪烁。
- *                超时判断使用差值写法 (now - last) >= timeout，
- *                可正确处理 uint32_t 溢出回绕。
+ * @note          按键：EXTI下降沿中断 + 消抖锁定事件计数；
+ *                LED：基于节拍的500ms非阻塞闪烁。
  */
 #include "main.h"
+#include "gpio.h"
 #include "app_config.h"
 #include "bsp_led.h"
 #include "bsp_key.h"
 #include "drv_timer_tick.h"
-#include <stdint.h>
-
-/* LED 非阻塞闪烁周期（ms） */
-#define LED_BLINK_PERIOD_MS    500U
 
 void SystemClock_Config(void);
 
 int main(void)
 {
     HAL_Init();
-
-    /*
-     * 系统时钟配置。
-     * 实际工程中由 CubeMX 生成。
-     */
     SystemClock_Config();
 
+    MX_GPIO_Init();
+    drv_timer_tick_init();
     LED_Init();
     KEY_Init();
-    drv_timer_tick_init();
 
-    /* 仅主循环使用的变量，不需要 volatile */
     uint32_t led_last_tick = 0;
     uint32_t key_event_count_last = 0;
 
@@ -48,37 +36,54 @@ int main(void)
         uint32_t now = drv_timer_tick_get();
         uint32_t key_event_count_snapshot = KEY_GetEventCount();
 
-        /*-------------------------------------------------
-         * 1. 非阻塞 LED 闪烁：500ms 一次
-         *------------------------------------------------*/
+        /*
+         * 按键事件处理：产生按键事件时立即翻转 LED 并重置闪烁节拍
+         */
+        if (key_event_count_snapshot != key_event_count_last)
+        {
+            key_event_count_last = key_event_count_snapshot;
+
+            LED_Toggle();
+            led_last_tick = now;
+        }
+
+        /*
+         * 非阻塞 LED 闪烁：500ms 一次
+         */
         if ((uint32_t)(now - led_last_tick) >= LED_BLINK_PERIOD_MS)
         {
             led_last_tick = now;
             LED_Toggle();
         }
-
-        /*-------------------------------------------------
-         * 2. 按键事件处理
-         *------------------------------------------------*/
-        if (key_event_count_snapshot != key_event_count_last)
-        {
-            key_event_count_last = key_event_count_snapshot;
-
-            /*
-             * 按键事件发生后立即翻转 LED，
-             * 并重置闪烁节拍。
-             */
-            LED_Toggle();
-            led_last_tick = now;
-        }
     }
 }
 
-/*
- * 实际工程中请使用 CubeMX 生成，
- * 或根据开发板时钟树自行配置。
- */
 void SystemClock_Config(void)
 {
-    /* TODO: 配置系统时钟到 72MHz（CubeMX 生成版本见 01_gpio_led/HAL/Core/Src/main.c） */
+    RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+    RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+    RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
+    RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
+    RCC_OscInitStruct.HSIState       = RCC_HSI_ON;
+    RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
+    RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
+    RCC_OscInitStruct.PLL.PLLMUL     = RCC_PLL_MUL9;
+    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+    {
+        Error_Handler();
+    }
+
+    RCC_ClkInitStruct.ClockType      = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
+                                     | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
+    RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK;
+    RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;
+    RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
+    RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
+    {
+        Error_Handler();
+    }
 }

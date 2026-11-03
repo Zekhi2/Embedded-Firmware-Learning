@@ -1,30 +1,21 @@
-/* User/bsp/bsp_key.c */
 #include "bsp_key.h"
+#include "drv_timer_tick.h"
 #include "app_config.h"
 
-/*
- * 该变量在 EXTI 回调中修改，
- * 在主循环中通过接口读取，
- * 所以必须使用 volatile。
- */
+/* 按键事件计数器与消抖锁定节拍 */
 static volatile uint32_t s_key_event_count = 0;
+static volatile uint32_t s_key_last_press_tick = 0;
 
 void KEY_Init(void)
 {
-    GPIO_InitTypeDef GPIO_InitStruct = {0};
+    /* 引脚模式、内部上拉及 EXTI 中断均已由 MX_GPIO_Init() 配置 */
+    s_key_event_count = 0;
+    s_key_last_press_tick = 0;
+}
 
-    /*
-     * Day 2：按键由 Day 1 的轮询输入改为 EXTI 下降沿中断。
-     * CubeMX 生成的 gpio.c 中 KEY 仍为普通输入模式，
-     * 这里重新配置为 IT_FALLING（等效于 Mode = GPIO_MODE_IT_FALLING, Pull = GPIO_PULLUP）。
-     */
-    GPIO_InitStruct.Pin  = KEY_PIN;
-    GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
-    GPIO_InitStruct.Pull = GPIO_PULLUP;
-    HAL_GPIO_Init(KEY_PORT, &GPIO_InitStruct);
-
-    HAL_NVIC_SetPriority(KEY_EXTI_IRQn, 1, 0);
-    HAL_NVIC_EnableIRQ(KEY_EXTI_IRQn);
+uint32_t KEY_GetEventCount(void)
+{
+    return s_key_event_count;
 }
 
 key_state_t KEY_Read(void)
@@ -37,23 +28,19 @@ key_state_t KEY_Read(void)
     return KEY_RELEASED;
 }
 
-uint32_t KEY_GetEventCount(void)
-{
-    return s_key_event_count;
-}
-
-/*
- * HAL GPIO EXTI 回调。
- * 如果有多个 EXTI 引脚，可以在这里统一分发。
- */
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
     if (GPIO_Pin == KEY_PIN)
     {
         /*
          * 中断中只记录事件次数，
-         * 复杂业务放到主循环处理。
+         * 中断消抖锁定机制：若距离上次有效触发不足 KEY_DEBOUNCE_TIME_MS，直接滤除。
          */
-        s_key_event_count++;
+        uint32_t now = drv_timer_tick_get();
+        if ((uint32_t)(now - s_key_last_press_tick) >= KEY_DEBOUNCE_TIME_MS)
+        {
+            s_key_last_press_tick = now;
+            s_key_event_count++;
+        }
     }
 }
