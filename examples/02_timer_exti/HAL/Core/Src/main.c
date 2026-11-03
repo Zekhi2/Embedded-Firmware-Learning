@@ -1,5 +1,10 @@
 /* USER CODE BEGIN Header */
 /**
+ * @brief         Timer 1ms系统节拍 + EXTI按键中断 + 非阻塞LED闪烁
+ * @par firmware: STM32F103 HAL (STM32CubeMX)
+ * @date          2026-10-25
+ * @note          按键：EXTI下降沿中断 + 消抖锁定事件计数；
+ *                LED：基于节拍的500ms非阻塞闪烁。
   ******************************************************************************
   * @file           : main.c
   * @brief          : Main program body
@@ -23,7 +28,10 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "app_config.h"
+#include "bsp_led.h"
+#include "bsp_key.h"
+#include "drv_timer_tick.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -89,7 +97,12 @@ int main(void)
   MX_GPIO_Init();
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
+  drv_timer_tick_init();  /* 仅 HAL_TIM_Base_Start_IT：MX_TIM3_Init 已由上方生成区完成 */
+  LED_Init();
+  KEY_Init();
 
+  uint32_t led_last_tick = 0;
+  uint32_t key_event_count_last = 0;
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -99,6 +112,33 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+
+    /*
+     * 读取共享变量时，先取局部快照，
+     * 避免一次逻辑中多次读取到不同值。
+     */
+    uint32_t now = drv_timer_tick_get();
+    uint32_t key_event_count_snapshot = KEY_GetEventCount();
+
+    /*
+     * 按键事件处理：产生按键事件时立即翻转 LED 并重置闪烁节拍
+     */
+    if (key_event_count_snapshot != key_event_count_last)
+    {
+      key_event_count_last = key_event_count_snapshot;
+
+      LED_Toggle();
+      led_last_tick = now;
+    }
+
+    /*
+     * 非阻塞 LED 闪烁：500ms 一次
+     */
+    if ((uint32_t)(now - led_last_tick) >= LED_BLINK_PERIOD_MS)
+    {
+      led_last_tick = now;
+      LED_Toggle();
+    }
   }
   /* USER CODE END 3 */
 }

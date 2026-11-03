@@ -1,5 +1,10 @@
 /* USER CODE BEGIN Header */
 /**
+ * @brief         Timer 1ms系统节拍 + EXTI按键中断 + 非阻塞LED闪烁
+ * @par firmware: STM32F103 HAL (STM32CubeMX)
+ * @date          2026-10-25
+ * @note          按键：EXTI下降沿中断 + 消抖锁定事件计数；
+ *                LED：基于节拍的500ms非阻塞闪烁。
   ******************************************************************************
   * @file    stm32f1xx_it.c
   * @brief   Interrupt Service Routines.
@@ -22,6 +27,7 @@
 #include "stm32f1xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "tim.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -199,5 +205,19 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /* USER CODE BEGIN 1 */
+/**
+  * @brief This function handles EXTI line0 interrupt (KEY, PA0).
+  */
+void EXTI0_IRQHandler(void)
+{
+  HAL_GPIO_EXTI_IRQHandler(KEY_Pin);
+}
 
+/**
+  * @brief This function handles TIM3 global interrupt (system tick).
+  */
+void TIM3_IRQHandler(void)
+{
+  HAL_TIM_IRQHandler(&htim3);
+}
 /* USER CODE END 1 */

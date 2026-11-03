@@ -1,5 +1,10 @@
 /* USER CODE BEGIN Header */
 /**
+ * @brief         Timer 1ms系统节拍 + 非阻塞LED闪烁 + 按键有限状态机
+ * @par firmware: STM32F103 HAL (STM32CubeMX)
+ * @date          2026-10-25
+ * @note          LED：基于节拍的500ms非阻塞闪烁。
+ *                KEY：定时扫描型按键有限状态机处理。
   ******************************************************************************
   * @file           : main.c
   * @brief          : Main program body
@@ -23,7 +28,10 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "app_config.h"
+#include "bsp_led.h"
+#include "bsp_key.h"
+#include "drv_timer_tick.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -89,7 +97,12 @@ int main(void)
   MX_GPIO_Init();
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
+  drv_timer_tick_init();  /* 仅 HAL_TIM_Base_Start_IT：MX_TIM3_Init 已由上方生成区完成 */
+  LED_Init();
+  KEY_Init();
 
+  uint32_t led_last_tick = 0;
+  uint32_t key_last_scan_tick = 0;
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -99,6 +112,53 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+    uint32_t now = drv_timer_tick_get();
+
+    /* 按键状态机周期扫描 */
+    if ((uint32_t)(now - key_last_scan_tick) >= KEY_SCAN_PERIOD_MS)
+    {
+      key_last_scan_tick = now;
+      key_event_t key_event = KEY_Process();
+
+      switch (key_event)
+      {
+        case KEY_EVENT_SINGLE_CLICK:
+        {
+          /* 短按：翻转 LED，并重置闪烁节拍 */
+          LED_Toggle();
+          led_last_tick = now;
+        }
+        break;
+
+        case KEY_EVENT_DOUBLE_CLICK:
+        {
+          /* 双击示例，可扩展 */
+        }
+        break;
+
+        case KEY_EVENT_LONG_START:
+        {
+          /* 长按示例，可扩展 */
+        }
+        break;
+
+        case KEY_EVENT_LONG_REPEAT:
+        {
+          /* 长按连发示例，可扩展 */
+        }
+        break;
+
+        default:
+        break;
+      }
+    }
+
+    /* 非阻塞 LED 闪烁：500ms 一次 */
+    if ((uint32_t)(now - led_last_tick) >= LED_BLINK_PERIOD_MS)
+    {
+      led_last_tick = now;
+      LED_Toggle();
+    }
   }
   /* USER CODE END 3 */
 }
