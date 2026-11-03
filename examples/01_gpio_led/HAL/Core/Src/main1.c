@@ -23,7 +23,6 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "bsp_led.h"
-#include "bsp_key.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -89,7 +88,6 @@ int main(void)
   MX_GPIO_Init();
   /* USER CODE BEGIN 2 */
   LED_Init();
-  KEY_Init();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -163,10 +161,9 @@ void Error_Handler(void)
 }
 #ifdef USE_FULL_ASSERT
 /**
-  * @brief  Reports the name of the source file and the source line number
-  *         where the assert_param error has occurred.
-  * @param  file: pointer to the source file name
-  * @param  line: assert_param error line source number
+  * @brief  Reports the name of the source file到位和行号。
+  * @param  file: 源文件名指针
+  * @param  line: 错误行号
   * @retval None
   */
 void assert_failed(uint8_t *file, uint32_t line)

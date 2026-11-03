@@ -1,7 +1,42 @@
 # Ignore the candleLight firmware directory
 candleLight_fw/
 
+# Ignore the Temp directory
+temp/
+
 # Ignore the VS Code settings directory
 .vscode/*
 !.vscode/
 !.vscode/Doxygen.code-snippets
+
+# Build directories & compilation outputs
+build/
+cmake-build-*/
+Objects/
+Listings/
+*.o
+*.d
+*.crf
+*.htm
+*.build_log.htm
+*.dep
+*.axf
+*.hex
+*.bin
+*.elf
+*.map
+*.lnp
+*.sct
+
+# Keil MDK user specific & debug options
+*.uvopt
+*.uvoptx
+*.uvgui.*
+*.uvguix.*
+
+# Temporary / editor backup files
+*.swp
+*.bak
+*~
+.DS_Store
+Thumbs.db
