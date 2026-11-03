@@ -1,0 +1,17 @@
+{
+  "Doxygen File Header Simple": {
+    "prefix": "dox-top-slim",
+    "body": [
+      "/**",
+      " * @brief         ${1:简要描述}",
+      " * @par firmware: ${2:STM32F103}",
+      " * ${3:SPL}",
+      " * @par compiler: ${4:Keil MDK}",
+      " * @date          ${CURRENT_YEAR}-${CURRENT_MONTH}-${CURRENT_DATE}",
+      " * @version       ${5:V1.0}",
+      " * @note          ${6:备注}",
+      " */",
+    ],
+    "description": "精简版 Doxygen 文件头"
+  }
+}
