@@ -95,9 +95,9 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 
 ---
 
-## 四、 嵌入式工业级规范追溯与标准落地
+## 四、 嵌入式工业级规范与标准
 
-本项目代码严格遵循汽车与高可靠嵌入式领域两大核心标准：**MISRA C:2012** 与 **Barr Group Embedded C Coding Standard**。
+本项目代码参考汽车与高可靠嵌入式领域两大核心标准：**MISRA C:2012** 与 **Barr Group Embedded C Coding Standard**。
 
 ### 4.1 强类型定义与显式位宽
 * **标准规则**：
