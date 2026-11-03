@@ -5,3 +5,6 @@ candleLight_fw/
 .vscode/*
 !.vscode/
 !.vscode/Doxygen.code-snippets
+
+# Ignore the Temp directory
+.temp/*
