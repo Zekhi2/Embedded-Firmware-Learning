@@ -1,10 +1,5 @@
 /* USER CODE BEGIN Header */
 /**
- * @brief         Timer 1ms系统节拍 + EXTI按键中断 + 非阻塞LED闪烁
- * @par firmware: STM32F103 HAL (STM32CubeMX)
- * @date          2026-10-25
- * @note          按键：EXTI下降沿中断 + 消抖锁定事件计数；
- *                LED：基于节拍的500ms非阻塞闪烁。
   ******************************************************************************
   * @file    stm32f1xx_it.c
   * @brief   Interrupt Service Routines.

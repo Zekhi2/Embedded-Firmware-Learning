@@ -1,10 +1,5 @@
 /* USER CODE BEGIN Header */
 /**
- * @brief         Timer 1ms系统节拍 + 非阻塞LED闪烁 + 按键有限状态机
- * @par firmware: STM32F103 HAL (STM32CubeMX)
- * @date          2026-10-25
- * @note          LED：基于节拍的500ms非阻塞闪烁。
- *                KEY：定时扫描型按键有限状态机处理。
   ******************************************************************************
   * @file    stm32f1xx_it.c
   * @brief   Interrupt Service Routines.

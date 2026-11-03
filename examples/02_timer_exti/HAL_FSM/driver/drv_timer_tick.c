@@ -5,7 +5,7 @@ static volatile uint32_t s_system_tick_ms = 0;
 
 void drv_timer_tick_init(void)
 {
-    /* CubeMX 生成区已调用 MX_TIM3_Init()，此处仅启动中断，避免重复初始化 */
+    /* CubeMX 生成区已调用 MX_TIM3_Init()，此处仅启动中断 */
     HAL_TIM_Base_Start_IT(&htim3);
 }
 

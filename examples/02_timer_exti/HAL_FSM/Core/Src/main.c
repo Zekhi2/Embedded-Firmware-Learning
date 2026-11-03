@@ -1,13 +1,12 @@
 /* USER CODE BEGIN Header */
 /**
- * @brief         Timer 1ms系统节拍 + 非阻塞LED闪烁 + 按键有限状态机
- * @par firmware: STM32F103 HAL (STM32CubeMX)
- * @date          2026-10-25
- * @note          LED：基于节拍的500ms非阻塞闪烁。
- *                KEY：定时扫描型按键有限状态机处理。
   ******************************************************************************
-  * @file           : main.c
-  * @brief          : Main program body
+  * @file          main.c
+  * @brief         Timer 1ms系统节拍 + 非阻塞LED闪烁 + 按键有限状态机
+  * @par firmware: STM32F103 HAL (STM32CubeMX)
+  * @date          2026-10-25
+  * @note          LED：基于节拍的500ms非阻塞闪烁。
+  *                KEY：定时扫描型按键有限状态机处理。
   ******************************************************************************
   * @attention
   *
@@ -97,7 +96,7 @@ int main(void)
   MX_GPIO_Init();
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
-  drv_timer_tick_init();  /* 仅 HAL_TIM_Base_Start_IT：MX_TIM3_Init 已由上方生成区完成 */
+  drv_timer_tick_init();
   LED_Init();
   KEY_Init();
 
